@@ -1,0 +1,8 @@
+# Varela Vega Alfredo 
+
+Inicializando el Rproject 
+
+```{r}
+usethis::create_project("~/bioinfo2_rna_seq_project_2021")
+```
+
