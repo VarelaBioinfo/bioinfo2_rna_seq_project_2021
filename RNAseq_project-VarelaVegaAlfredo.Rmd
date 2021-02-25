@@ -3,6 +3,11 @@
 Inicializando el Rproject 
 
 ```{r}
+# Creando el proyecto 
 usethis::create_project("~/bioinfo2_rna_seq_project_2021")
+# Inicializando el repositiorio de git 
+usethis::use_git()
+# Inicializando el repositiorio de github 
+usethis::use_github()
 ```
 
