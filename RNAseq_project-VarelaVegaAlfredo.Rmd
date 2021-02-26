@@ -1,6 +1,5 @@
-# Varela Vega Alfredo 
-
-Inicializando el Rproject 
+# Varela Vega Alfredo datos de The human olfactory transcriptome 
+## Inicializando el Rproject 
 
 ```{r}
 # Creando el proyecto 
@@ -9,5 +8,41 @@ usethis::create_project("~/bioinfo2_rna_seq_project_2021")
 usethis::use_git()
 # Inicializando el repositiorio de github 
 usethis::use_github()
+```
+## Búsqueda de datos de RNAseq utilizando `rcount3`` 
+
+**Decidí usar datos de The human olfactory transcriptome**
+We report the first RNAseq study of human olfactory epithelium, aimed at obtaining a whole transcriptome overview of the sensory tissue. Our work reveals nearly 200 olfactory-enriched non-receptor transcripts, 80% of which have not yet been implicated in chemosensory function, thus providing a platform for future discovery. Our study further allowed us to quantitate the expression levels of most (90%) of the ~400 intact human olfactory receptor (OR) genes. The expression levels of different paralogous members of the OR repertoire span a 1000-fold range, suggesting a strong imbalance among different odorant specificities. Further, we obtained convincing hints that different human beings show different cross-repertoire expression patterns. Having successfully assembled transcripts for 100 OR genes, we observed prevalent genome-encoded mutations that render some transcripts inactive despite the fact that the protein coding region is intact, an unreported mechanism for OR pseudogenization. In sum, our transcriptome study offers important observations on genes that underlie olfactory function and provides a basis for significant future work. Overall design: total RNAseq of human olfactory epithelium
+
+
+```{r}
+library("recount3")
+browseVignettes("recount3")
+# Reviso todos los proyectos con datos de humano en recount3
+human_projects<-available_projects()
+
+# Utilizo los datos de The human olfactory transcriptome SRP073248 with 4 samples
+
+proj_info<- subset(human_projects, project =="SRP073248"& project_type=="data_sources")
+
+# Crear un objeto RangedSummarizedExperiment (RSE) a nivel de genes 
+rse_gene_SRP073248 <- create_rse(proj_info)
+# Ecplorar el objeto RSE
+rse_gene_SRP073248
+# Ver nombres de las columnas 
+names(colData(rse_gene_SRP073248))
+# Ver los nombres de los genes 
+gene_names_olf<-rowData(rse_gene_SRP073248)$gene_name
+# Número total de genes 
+length(gene_names_olf)
+```
+
+
+
+
+
+
+```{r}
+citation("recount3")
 ```
 
