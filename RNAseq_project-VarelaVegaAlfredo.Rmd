@@ -53,9 +53,19 @@ assay(rse_gene_SRP073248, "counts")<- compute_read_counts(rse_gene_SRP073248)
 # Checo el objeto y verifico que en assay hay dos tablas
 rse_gene_SRP073248
 tail(assays(rse_gene_SRP073248)$counts,100)
+colnames(colData(rse_gene_SRP073248))
 
+# Expando la información específica del estudio usando Sequence read archive
+# De donde obtiene esa información??????
+rse_gene_SRP073248<- expand_sra_attributes(rse_gene_SRP073248)
+# lo que agrega
+# sra_attribute.age                                                 
+# sra_attribute.Sex                                                 
+# sra_attribute.source_name                                         
+# sra_attribute.tissue 
 
-
+# Exploramos qué son las colmnas añadidas que comienzan con sra_attribute
+colData(rse_gene_SRP073248)[,grepl("^sra_attribute", colnames(colData(rse_gene_SRP073248)))]
 ```
 
 
