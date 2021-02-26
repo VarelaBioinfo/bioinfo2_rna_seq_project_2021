@@ -67,11 +67,14 @@ rse_gene_SRP073248<- expand_sra_attributes(rse_gene_SRP073248)
 # Exploramos qué son las colmnas añadidas que comienzan con sra_attribute
 colData(rse_gene_SRP073248)[,grepl("^sra_attribute", colnames(colData(rse_gene_SRP073248)))]
 ```
-
+## Ploteamos con iSEE
 
 ```{r}
 library("iSEE")
 iSEE::iSEE(rse_gene_SRP073248)
+
+# Niveles de expresión para un gen en particular a lo largo del eje X
+
 ```
 
 
