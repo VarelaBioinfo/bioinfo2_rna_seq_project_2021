@@ -27,17 +27,42 @@ proj_info<- subset(human_projects, project =="SRP073248"& project_type=="data_so
 
 # Crear un objeto RangedSummarizedExperiment (RSE) a nivel de genes 
 rse_gene_SRP073248 <- create_rse(proj_info)
-# Ecplorar el objeto RSE
+
+## Explorar el objeto RSE
 rse_gene_SRP073248
+str(rse_gene_SRP073248)
+
+# Lecturas por nucleótido 
+# Por qué tengo genes sin lecturas????????????????????
+tail(assays(rse_gene_SRP073248)$raw_counts, 20)
+
+
 # Ver nombres de las columnas 
 names(colData(rse_gene_SRP073248))
+colData(rse_gene_SRP073248)
 # Ver los nombres de los genes 
 gene_names_olf<-rowData(rse_gene_SRP073248)$gene_name
 # Número total de genes 
 length(gene_names_olf)
+
+## Como las cuentas no son las de RNAseq sino el número de lecturas que sobrelapan cada base del genoma
+# Convertimos las cuentas por nucleotido a cuentas por lectura 
+# Creamos un nuevo assay en el que guardaremos el numero de lecturas transformadas
+assay(rse_gene_SRP073248, "counts")<- compute_read_counts(rse_gene_SRP073248)
+
+# Checo el objeto y verifico que en assay hay dos tablas
+rse_gene_SRP073248
+tail(assays(rse_gene_SRP073248)$counts,100)
+
+
+
 ```
 
 
+```{r}
+library("iSEE")
+iSEE::iSEE(rse_gene_SRP073248)
+```
 
 
 
