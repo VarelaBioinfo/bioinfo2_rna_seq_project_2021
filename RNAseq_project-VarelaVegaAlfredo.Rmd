@@ -1,14 +1,18 @@
-# Varela Vega Alfredo datos de The human olfactory transcriptome 
+# Varela Vega Alfredo 
+## Datos de The human olfcatory transcriptome
+
+
 ## Inicializando el Rproject 
 
 ```{r}
 # Creando el proyecto 
-usethis::create_project("~/bioinfo2_rna_seq_project_2021")
+# usethis::create_project("~/bioinfo2_rna_seq_project_2021")
 # Inicializando el repositiorio de git 
-usethis::use_git()
+# usethis::use_git()
 # Inicializando el repositiorio de github 
-usethis::use_github()
+# usethis::use_github()
 ```
+
 ## Búsqueda de datos de RNAseq utilizando `rcount3`` 
 
 **Decidí usar datos de The human olfactory transcriptome**
@@ -99,7 +103,8 @@ summary(rse_gene_SRP073248$assigned_gene_prop)
 # Existe una ligera diferencia entre la media y la mediana en ambos grupos (mayores de 60 y menores de 60)
 with(colData(rse_gene_SRP073248),tapply(assigned_gene_prop,less_sixty,summary))
 ```
-Eliminaremos Algunas muestras que consideremos de baja calidad 
+## Eliminaremos Algunas muestras que consideremos de baja calidad 
+
 ```{r}
 # Guardamos nuestro objeto entero por si luego cambiamos de opinión 
 rse_gene_SRP073248_unfiltered<- rse_gene_SRP073248
