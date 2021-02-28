@@ -66,17 +66,124 @@ rse_gene_SRP073248<- expand_sra_attributes(rse_gene_SRP073248)
 
 # Exploramos qué son las colmnas añadidas que comienzan con sra_attribute
 colData(rse_gene_SRP073248)[,grepl("^sra_attribute", colnames(colData(rse_gene_SRP073248)))]
+
+# Checamos que la edad no es númerica 
+type(rse_gene_SRP073248$sra_attribute.age)
+
+# Volvemos numerica la edad 
+rse_gene_SRP073248$sra_attribute.age<- as.numeric(rse_gene_SRP073248$sra_attribute.age)
+# Ya es númerica 
+type(rse_gene_SRP073248$sra_attribute.age)
+
+# Volvermos factor el sexo 
+rse_gene_SRP073248$sra_attribute.Sex<- factor(rse_gene_SRP073248$sra_attribute.Sex)
+
+# Resumen de las variables de interés 
+summary(as.data.frame(colData(rse_gene_SRP073248)[
+    ,
+    grepl("^sra_attribute.[age|Sex]", colnames(colData(rse_gene_SRP073248)))
+]))
+
+normal_counts_olf<- assays(rse_gene_SRP073248)$counts
+
+summary(normal_counts_olf)
+
+# Encontraremos diferencias entre muestras de menos de 60 vs más de 60 
+rse_gene_SRP073248$less_sixty <- factor(ifelse(rse_gene_SRP073248$sra_attribute.age<60,"less_sixty","elderly"))
+table(rse_gene_SRP073248$less_sixty)
+
+# Información de la calidad de los datos 
+rse_gene_SRP073248$assigned_gene_prop<- rse_gene_SRP073248$recount_qc.gene_fc_count_all.assigned / rse_gene_SRP073248$recount_qc.gene_fc_count_all.total 
+
+summary(rse_gene_SRP073248$assigned_gene_prop)
+# Existe una ligera diferencia entre la media y la mediana en ambos grupos (mayores de 60 y menores de 60)
+with(colData(rse_gene_SRP073248),tapply(assigned_gene_prop,less_sixty,summary))
 ```
-## Ploteamos con iSEE
+Eliminaremos Algunas muestras que consideremos de baja calidad 
+```{r}
+# Guardamos nuestro objeto entero por si luego cambiamos de opinión 
+rse_gene_SRP073248_unfiltered<- rse_gene_SRP073248
+
+## Eliminamos a muestras malas 
+hist(rse_gene_SRP073248$assigned_gene_prop)
+table(rse_gene_SRP073248$assigned_gene_prop<0.3)
+
+## Calculemos los niveles medios de expresión de los genes en nuestras muestras 
+
+gene_means<- rowMeans(assay(rse_gene_SRP073248,"counts"))
+
+summary(gene_means)
+length(gene_means)
+
+## Eliminamos genes 
+
+rse_gene_SRP073248<- rse_gene_SRP073248[gene_means>0.1,]
+dim(rse_gene_SRP073248)
+
+# Porcentaje de genes que retuvimos 
+round(nrow(rse_gene_SRP073248) / nrow(rse_gene_SRP073248_unfiltered)*100,2)
+
+```
+## Normalización de datos 
 
 ```{r}
-library("iSEE")
-iSEE::iSEE(rse_gene_SRP073248)
+library("edgeR")
+# Para crear un objeto dge
+dge <- DGEList(
+    counts = assay(rse_gene_SRP073248, "counts"),
+    genes = rowData(rse_gene_SRP073248)
+)
 
-# Niveles de expresión para un gen en particular a lo largo del eje X
+dge<- calcNormFactors(dge)
+```
+# Expresión diferencial 
+```{r}
+library("ggplot2")
+ggplot(as.data.frame(colData(rse_gene_SRP073248)), aes(y=assigned_gene_prop, x= less_sixty)) +
+  geom_boxplot() +
+  theme_bw(base_size= 20)+
+  ylab("Asigned Gene Prop")+
+  xlab("Age Group")
 
 ```
 
+# Modelo estadístico 
+```{r}
+mod <- model.matrix(~ less_sixty + assigned_gene_prop, data= colData(rse_gene_SRP073248))
+
+colnames(mod)
+```
+
+Usamos lima para el análisis de expresión diferencial ya teniendo el modelo estadístico
+
+```{r}
+library("limma")
+vGene <- voom(dge, mod, plot=TRUE)
+eb_results <-eBayes(lmFit(vGene))
+
+de_results<- topTable(
+  eb_results,
+  coef=2,
+  number = nrow(rse_gene_SRP073248),
+  sort.by="none"
+)
+# logFC es el coeficiente de interés, mayor expresión en el numerador será positivo el LogFc
+dim(de_results)
+head(de_results)
+
+# Genes diferencialmente expresados en mayores y menores de 60
+table(de_results$adj.P.Val< 0.05)
+
+# Visualizamos los resultados estadístivos 
+# Valores positivos dicen que son más altos en menores de sesenta
+# Valores negativos más expresados en 60 o más 
+plotMA(eb_results, coef=2)
+
+# Resalta los 3 genes con mayor señal 
+volcanoplot(eb_results,coef =2, highlight = 3 , names= de_results$gene_name)
+
+
+```
 
 
 
